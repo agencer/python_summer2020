@@ -135,39 +135,25 @@ class Portfolio():
 
 
 
+#	Main
 
 portfolio = Portfolio() #Creates a new portfolio
 portfolio.addCash(300.50) #Adds cash to the portfolio
-# portfolio.addCash("300.50") #Shouldn't add and must throw and error message. 
-portfolio.withdrawCash(100.25) #Substract cash to the portfolio
-portfolio.history_string
-portfolio.history()
-
-#	We also need the classes of stock and mutual funds as follows:
-s = Stock(20, "HFH")
-portfolio.buyStock(5, s) #	WWOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOWWWW, It works sooo good!
-
-#	Now go over the mutual fund we created by inheritence:
-mf1 = MutualFund("BRT")
-mf2 = MutualFund("GHT")
-portfolio.buyMutualFund(10.3, mf1)
-portfolio.buyMutualFund(2, mf2)
-print("Cash: ", portfolio.cash, "\nAssets:", portfolio.item_dictionary)	# Cool!
-
-#	Let's look for the sell option.
+s = Stock(20, "HFH") #Create Stock with price 20 and symbol "HFH"
+portfolio.buyStock(5, s) #Buys 5 shares of stock s
+mf1 = MutualFund("BRT") #Create MF with symbol "BRT"
+mf2 = MutualFund("GHT") #Create MF with symbol "GHT"
+portfolio.buyMutualFund(10.3, mf1) #Buys 10.3 shares of "BRT"
+portfolio.buyMutualFund(2, mf2) #Buys 2 shares of "GHT"
+print("cash: ", portfolio.cash, "\nOther items: ", portfolio.item_dictionary) #Prints portfolio
 portfolio.sellMutualFund("BRT", 3) #Sells 3 shares of BRT
 portfolio.sellStock("HFH", 1) #Sells 1 share of HFH
 portfolio.withdrawCash(50) #Removes $50
+portfolio.history() #Prints a list of all transactions ordered by time
 
-
-#	So far great! Now, buy and some bonds. Note that, by construct, the profit of bonds are normally distributed 
-#		with a mean value as purchase value and sd as the one tenth of the mean value.
-
-b1 = Bond(10, "Gov't Bond")
-portfolio.buyBond(4, b1)
-print("Cash: ", portfolio.cash, "\nAssets:", portfolio.item_dictionary)	# Cool!
-portfolio.sellBond("Gov't Bond", 4) #Sells 1 share of HFH
-
-
-
-portfolio.history()#Prints a list of all transactions ordered by time
+#	Extra
+b1 = Bond(10, "TBill")
+portfolio.buyBond(5, b1)
+portfolio.sellBond("TBill", 3)
+portfolio.sellBond("TBill", 1)
+portfolio.history() #Prints a list of all transactions ordered by time
