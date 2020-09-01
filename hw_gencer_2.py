@@ -16,7 +16,6 @@ import urllib
 import csv
 import os
 
-https://petitions.whitehouse.gov/petitions?page=2
 
 # Set WD
 os.chdir('C:/Users/alper/OneDrive/Belgeler/GitHub/python_summer2020')
@@ -27,14 +26,14 @@ with open('hw_gencer_2.csv', 'w') as f:
 	w.writeheader()
 	# Open the main website
 	for i in range(1,3):
-		web_address = 'https://petitions.whitehouse.gov/petitions?page=' + i
+		web_address = 'https://petitions.whitehouse.gov/petitions?page=' + str(i)
 		web_page = urllib.request.urlopen(web_address)
 		# Parse it
 		soup = BeautifulSoup(web_page.read())
 		# Find all faculty members
-		fac = soup.find_all('article', class_ = 'faculty-post')
+		petitions = soup.find_all('a', class_ = 'href')
 		# Loop over fac
-		for i in fac:
+		for i in petitions:
 			prof = {}
 			# Name
 			prof['name'] = i.h3.text
@@ -62,3 +61,11 @@ with open('hw_gencer_2.csv', 'w') as f:
 
 
 
+web_address = 'https://petitions.whitehouse.gov/petitions?page=' + str(1)
+web_page = urllib.request.urlopen(web_address)
+soup = BeautifulSoup(wlostage[]
+petitions = soup.find_all('a')
+petitions[::]
+my_lost = []
+for p in range(1,68):
+    my_dict["href"].append(petitions[p].attrs["href"]) 
