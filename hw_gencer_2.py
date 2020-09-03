@@ -30,13 +30,18 @@ with open('hw_gencer_2.csv', 'w') as f:
 		web_page = urllib.request.urlopen(web_address)
 		# Parse it
 		soup = BeautifulSoup(web_page.read())
-		# Find all faculty members
-		petitions = soup.find_all('a', class_ = 'href')
-		# Loop over fac
+		# Let's create an empty list to put each petition's url:
+		petitions = []
+		# Let's get each url:
+		for a in soup.find_all('a', href=True):
+		    if a['href'].startswith("/petition/") and len(a['href'])>20:
+		    	petitions.append("https://petitions.whitehouse.gov" + a['href'])
+		petitions = list(set(petitions))		
+		# Now let's go to each webpage and get related information:
 		for i in petitions:
-			prof = {}
-			# Name
-			prof['name'] = i.h3.text
+			pet_dictionary = {}
+			# Title
+			prof['Title'] = i.h3.text
 			# Title
 			prof['title'] = i.find('ul').text.lstrip().rstrip()
 			# Email
@@ -63,9 +68,45 @@ with open('hw_gencer_2.csv', 'w') as f:
 
 web_address = 'https://petitions.whitehouse.gov/petitions?page=' + str(1)
 web_page = urllib.request.urlopen(web_address)
-soup = BeautifulSoup(wlostage[]
-petitions = soup.find_all('a')
-petitions[::]
-my_lost = []
-for p in range(1,68):
-    my_dict["href"].append(petitions[p].attrs["href"]) 
+soup = BeautifulSoup(web_page)
+petitions = []
+for a in soup.find_all('a', href=True):
+    if a['href'].startswith("/petition/") and len(a['href'])>20:
+    	petitions.append(a['href'])
+petitions = list(set(petitions))
+
+for i in petitions:
+	pet_web_page = urllib.request.urlopen(petitions)
+	soup = BeautifulSoup(web_page.read())
+	# Let's create a petition dictionary:
+	pet_dictionary = {}
+	# Title:
+	pet_dictionary['Title'] = i.h3.text
+	# Issues:
+	pet_dictionary['Issues'] = i.find(class_ = 'column contact').text.split(': ')[1]
+	# "Date":
+	pet_dictionary['Date'] = i.find('ul').text.lstrip().rstrip()
+
+	# Number of signatures:
+	pet_dictionary['Signatures'] = i.find(class_ = 'column contact').text.split(': ')[1]
+
+	
+example = petitions[0]
+pet_web_page = urllib.request.urlopen(example)
+soup = BeautifulSoup(pet_web_page.read())
+print(soup)
+# Let's create a petition dictionary:
+pet_dictionary = {}
+# Title:
+pet_dictionary['Title'] = (soup.h1).getText()
+# Issues:
+pet_dictionary['Issues'] = [i.getText() for i in soup.find_all("h6")][0]
+.find_all(class_ = 'field-items')
+.text.split(': ')[1]
+
+	# "Date":
+	pet_dictionary['Date'] = i.find('ul').text.lstrip().rstrip()
+	# Email:
+	pet_dictionary['Email'] = i.find(class_ = 'column contact').text.split(': ')[1]
+	# Number of signatures:
+	pet_dictionary['Signatures'] = i.find(class_ = 'column contact').text.split(': ')[1]
