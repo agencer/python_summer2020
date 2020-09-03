@@ -15,98 +15,54 @@ from bs4 import BeautifulSoup
 import urllib
 import csv
 import os
+import io
 
-
-# Set WD
+# 	Set WD
 os.chdir('C:/Users/alper/OneDrive/Belgeler/GitHub/python_summer2020')
 
 
-with open('hw_gencer_2.csv', 'w') as f:
-	w = csv.DictWriter(f, fieldnames = ("Title", "Published date", "Issues", "Number of signatures"))
-	w.writeheader()
-	# Open the main website
-	for i in range(1,3):
-		web_address = 'https://petitions.whitehouse.gov/petitions?page=' + str(i)
-		web_page = urllib.request.urlopen(web_address)
-		# Parse it
-		soup = BeautifulSoup(web_page.read())
-		# Let's create an empty list to put each petition's url:
-		petitions = []
-		# Let's get each url:
-		for a in soup.find_all('a', href=True):
-		    if a['href'].startswith("/petition/") and len(a['href'])>20:
-		    	petitions.append("https://petitions.whitehouse.gov" + a['href'])
-		petitions = list(set(petitions))		
-		# Now let's go to each webpage and get related information:
-		for i in petitions:
-			pet_dictionary = {}
-			# Title
-			prof['Title'] = i.h3.text
-			# Title
-			prof['title'] = i.find('ul').text.lstrip().rstrip()
-			# Email
-			prof['email'] = i.find(class_ = 'column contact').text.split(': ')[1]
-			# Open prof website to get specialization
-			try:
-				faculty_page = urllib.request.urlopen("https://polisci.wustl.edu" + i.find('a')['href'])
-				# webpage
-				prof['website'] = "https://polisci.wustl.edu" + i.find('a')['href']
-				# Parse it
-				soup = BeautifulSoup(faculty_page.read())
-			except urllib.error.URLError:
-				prof['website'] = i.find('a')['href']
-				prof['specialization'] = 'NA'
-				continue
-			# research interest
-			try:
-				prof['specialization'] = soup.find(class_ = 'post-excerpt').text
-			except AttributeError:
-				prof['specialization'] = 'NA'
-			w.writerow(prof)
+def petition_monster(page_number):
+	with io.open('hw_gencer_2.csv', 'w', encoding="utf-8") as f:	# I used "io.open" bc unicide couldn't  
+		w = csv.DictWriter(f, fieldnames = ("Title", "URL", "Number of signatures", "Over 100k signitures", "Issues", "Creator", "Published date"))
+		w.writeheader()
+		# 	Open the main website
+		for k in range(0,page_number):
+			web_address = 'https://petitions.whitehouse.gov/?page=' + str(k)
+			web_page = urllib.request.urlopen(web_address)
+			# 	Parse it
+			soup = BeautifulSoup(web_page.read())
+			# 	Let's create an empty list to put each petition's url:
+			petition_dictionary = {}
+			#	Now I want to look at not whole page but individual articles:
+			little_soup = soup.find_all('article')
+			del little_soup[0]
+			for l in range(0,20):
+				#	"Title"
+				tag_a = little_soup[l].find_all('a', href=True)
+				petition_dictionary["Title"] = tag_a[0].getText()
+				#	"URL"
+				petition_dictionary["URL"] = "https://petitions.whitehouse.gov" + tag_a[0].get("href")
+				#	"Number of signatures"
+				tag_span = little_soup[l].find_all('span')
+				petition_dictionary["Number of signatures"] = tag_span[1].getText ("signatures-number")
+				#	"Over 100k signitures"
+				petition_dictionary["Over 100k signitures"] = str(int((petition_dictionary["Number of signatures"]).replace(',', '')) >= 100000)
+				#	"Issues"
+				tag_h6 = little_soup[l].find_all('h6')
+				h6_list = []
+				for i in range(0,len(tag_h6)):
+					h6_list.append(tag_h6[i].getText())	
+				petition_dictionary["Issues"] = ", ".join(h6_list)
+				#	"Creator" and "Published date"
+				meta_soup = BeautifulSoup((urllib.request.urlopen(petition_dictionary["URL"])).read())
+				tag_h4 = meta_soup.find_all('h4')[0]
+				petition_dictionary["Creator"] = (tag_h4.getText()).split(" on ")[0][len("Created by "):] 
+				petition_dictionary["Published date"] = (tag_h4.getText()).split(" on ")[1] 
+				w.writerow(petition_dictionary)
 
 
 
-web_address = 'https://petitions.whitehouse.gov/petitions?page=' + str(1)
-web_page = urllib.request.urlopen(web_address)
-soup = BeautifulSoup(web_page)
-petitions = []
-for a in soup.find_all('a', href=True):
-    if a['href'].startswith("/petition/") and len(a['href'])>20:
-    	petitions.append(a['href'])
-petitions = list(set(petitions))
 
-for i in petitions:
-	pet_web_page = urllib.request.urlopen(petitions)
-	soup = BeautifulSoup(web_page.read())
-	# Let's create a petition dictionary:
-	pet_dictionary = {}
-	# Title:
-	pet_dictionary['Title'] = i.h3.text
-	# Issues:
-	pet_dictionary['Issues'] = i.find(class_ = 'column contact').text.split(': ')[1]
-	# "Date":
-	pet_dictionary['Date'] = i.find('ul').text.lstrip().rstrip()
+#	For the HW I print the first 3 pages (3*20 = 60 items). Therefore,
 
-	# Number of signatures:
-	pet_dictionary['Signatures'] = i.find(class_ = 'column contact').text.split(': ')[1]
-
-	
-example = petitions[0]
-pet_web_page = urllib.request.urlopen(example)
-soup = BeautifulSoup(pet_web_page.read())
-print(soup)
-# Let's create a petition dictionary:
-pet_dictionary = {}
-# Title:
-pet_dictionary['Title'] = (soup.h1).getText()
-# Issues:
-pet_dictionary['Issues'] = [i.getText() for i in soup.find_all("h6")][0]
-.find_all(class_ = 'field-items')
-.text.split(': ')[1]
-
-	# "Date":
-	pet_dictionary['Date'] = i.find('ul').text.lstrip().rstrip()
-	# Email:
-	pet_dictionary['Email'] = i.find(class_ = 'column contact').text.split(': ')[1]
-	# Number of signatures:
-	pet_dictionary['Signatures'] = i.find(class_ = 'column contact').text.split(': ')[1]
+petition_monster(3) #### YESSS! It has 60 items!!
