@@ -127,6 +127,7 @@ polls
 chart_slug = charts.items[0].slug
 trendlines = api.charts_slug_pollster_trendlines_tsv_get(chart_slug)
 trendlines
+dir(trendlines)
 
 # We can rearrange data too
 by_date = trendlines.pivot(index='date', columns='label', values='value').sort_index(0, ascending=True)
@@ -144,6 +145,10 @@ question_slug
 responses_clean = api.questions_slug_poll_responses_clean_tsv_get(question_slug)
 responses_clean
 
+
+
+
+
 #---------- Google Maps API ----------#
 
 
@@ -154,6 +159,7 @@ responses_clean
 
 import importlib # to import file
 import sys # add directory to system PATH
+import os
 
 # system PATH:
 # The system path is a list of folders, separated by a semicolon, 
@@ -162,7 +168,7 @@ import sys # add directory to system PATH
 # Source: https://bit.ly/2Z4KAzP
 
 # Add directory where your key is to system PATH
-sys.path.insert(0, '/Users/pcunhasilva/Dropbox/Projects/Secrets/')
+sys.path.insert(0, 'Users/alper/pyex/class/')
 
 # Import items from file
 imported_items = importlib.import_module('start_googleAPI')
@@ -252,10 +258,25 @@ plot1.scatter(lats = attraction_lats, lngs = attraction_lons,
 plot1.draw("my_map.html")
 
 
+
+
+
+
+
+
+
+
+
+
+
 #---------- Twitter API ----------#
 
 # pip install tweepy
 import tweepy
+import importlib # to import file
+import sys # add directory to system PATH
+import os
+
 # http://docs.tweepy.org/en/v3.8.0/api.html
 
 twitter = importlib.import_module('start_twitter')

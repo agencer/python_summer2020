@@ -12,4 +12,4 @@ import tweepy
 ## Copy/paste your keys here, move file out of github repo, import keys to public files.
 auth = tweepy.OAuthHandler('your consumer key', 'your consumer secret')
 auth.set_access_token('your access token', 'your access token secret')    
-client = tweepy.API(auth, wait_on_rate_limit = False)
+client = tweepy.API(auth, wait_on_rate_limit = True) # For HW
