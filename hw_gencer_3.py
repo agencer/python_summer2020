@@ -204,7 +204,7 @@ with io.open('hw_gencer_3_friendslist.csv', 'w', encoding="utf-8") as f:	# I use
 		w.writerow(friends)
 
 
-
+os.chdir('C:/Users/alper/OneDrive/Belgeler/GitHub/python_summer2020')
 data_followers = pd.read_csv("hw_gencer_3_followerslist.csv") 
 data_friends = pd.read_csv("hw_gencer_3_friendslist.csv") 
 
@@ -224,14 +224,15 @@ len(new_data_friends["Friends ID"])
 ##			most active?
 ##			-> 
 
+
 twit_count_followers = {}
-follower_tempr_dict = {}
 for index, row in new_data_followers.iterrows():
 	id_tempr = str(row["Follower ID"])
 	follower_tempr = (api.get_user(id_tempr)).followers_ids()
+	follower_tempr_dict = {}
 	for i in follower_tempr:
 		follower_tempr_dict[i] = (api.get_user(i)).statuses_count
-	active_tempr = max(follower_tempr_dict, key=follower_tempr_dict.get)
+	active_tempr = ipython(follower_tempr_dict, key=follower_tempr_dict.get)
 	activename_tempr = api.get_user(active_tempr).name
 	activetweet_tempr = follower_tempr_dict[active_tempr]
 	twit_count_followers[id_tempr] = ":".join({str(activetweet_tempr), str(activename_tempr)})
@@ -245,15 +246,15 @@ for index, row in new_data_followers.iterrows():
 ##			-> 
 
 twit_count_friends = {}
-follower_tempr_dict = {}
+friends_tempr_dict = {}
 for index, row in new_data_friends.iterrows():
 	id_tempr = str(row["Friends ID"])
-	follower_tempr = (api.get_user(id_tempr)).followers_ids()
-	for i in follower_tempr:
-		follower_tempr_dict[i] = (api.get_user(i)).statuses_count
-	active_tempr = max(follower_tempr_dict, key=follower_tempr_dict.get)
+	friends_tempr = []
+	for friend in tweepy.Cursor(api.friends, id = id_tempr).items():
+		friends_tempr.append(friend) 
+	for i in friends_tempr:
+		friends_tempr_dict[i] = (api.get_user(i)).statuses_count
+	active_tempr = max(friends_tempr_dict, key=friends_tempr_dict.get)
 	activename_tempr = api.get_user(active_tempr).name
-	activetweet_tempr = follower_tempr_dict[active_tempr]
-	twit_count_followers[id_tempr] = ":".join({str(activetweet_tempr), str(activename_tempr)})
-
-
+	activetweet_tempr = friends_tempr_dict[active_tempr]
+	twit_count_friends[id_tempr] = ":".join({str(activetweet_tempr), str(activename_tempr)})
