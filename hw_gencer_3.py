@@ -253,15 +253,30 @@ twit_count_followers_2[themostactive_follower_degree2] #	Among followers of wust
 ##		- Among the friends of @WUSTLPoliSci and their friends, who is the most
 ##			active?
 
+new_data_friends_sample = new_data_friends[:10] ##	Check with this sample, it works:
+#{'17187138': 'The Guardian:623600',                                                              
+# '28116356': 'The Guardian:623600',                                                              
+# '939263839941677057': 'The Guardian:623600',                                                    
+# '765930764500398080': 'The Guardian:623600',                                                    
+# '1044010382162087939': 'The Guardian:623600',                                                   
+# '1954980811': 'The Guardian:623600',                                                            
+# '788467373934309381': 'The Guardian:623600',                                                    
+# '263479789': 'The Guardian:623600',                                                             
+# '164546388': 'The Guardian:623600',                                                             
+# '370474938': 'The Guardian:623600'} 
+
+
 twit_count_friends = {}
-friends_tempr_dict = {}
 for index, row in new_data_friends.iterrows():
 	id_tempr = str(row["Friends ID"])	# Getting the ids of each friend
 	friends_tempr = []
+	friends_tempr_dict = {}
 	for friend in tweepy.Cursor(api.friends, id = id_tempr).items():	# Getting all friends of each friend
 		friends_tempr.append(friend) 
 	for i in friends_tempr:
-		friends_tempr_dict[i] = (api.get_user(i)).statuses_count 	#	Saving the tweet counts of each friend's friends
+		friends_id = i.id
+		friends_statuses_count = i.statuses_count 
+		friends_tempr_dict[friends_id] =  friends_statuses_count	#	Saving the tweet counts of each friend's friends
 	active_tempr = max(friends_tempr_dict, key=friends_tempr_dict.get)	#	Finding the the most active id in this dictionary
 	activename_tempr = api.get_user(active_tempr).name	#	Getting the name of the most active account
 	activetweet_tempr = friends_tempr_dict[active_tempr]	#	Getting the number 0f tweets by this most active friend
@@ -274,7 +289,7 @@ new_data_friends[new_data_friends['Number_Tweets'] == new_data_friends['Number_T
 twit_count_friends_2 = {}
 for i in twit_count_friends.values():			#	Now Seperating the friend ids of wustl friends from their tweet numbers.
 	components = (i.split(":"))
-	twit_count_friends_2[components[1]] = int(components[0])	#	The key is id and the values is number of tweets.
+	twit_count_friends_2[components[0]] = int(components[1])	#	The key is id and the values is number of tweets.
 
 themostactive_friend_degree2 = max(twit_count_friends_2, key=twit_count_friends_2.get)	#	Among feiends of wustl friends, the most active one has ... tweets 
 twit_count_friends_2[themostactive_friend_degree2] #	Among friends of wustl friends, the id of the most active friend is ... id
