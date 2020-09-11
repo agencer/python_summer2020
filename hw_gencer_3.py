@@ -276,9 +276,7 @@ for i in twit_count_friends.values():			#	Now Seperating the friend ids of wustl
 	components = (i.split(":"))
 	twit_count_friends_2[components[1]] = int(components[0])	#	The key is id and the values is number of tweets.
 
-themostactive_friend_degree1 = max(twit_count_friends_2, key=twit_count_friends_2.get)	#	Among feiends of wustl friends, the most active one has ... tweets 
-themostactive_friend_degree2 = max(twit_count_friends_2, key=twit_count_friends_2.get)	#	Among friends of wustl friends, the id of the most active friend is ... id
-
-
+themostactive_friend_degree2 = max(twit_count_friends_2, key=twit_count_friends_2.get)	#	Among feiends of wustl friends, the most active one has ... tweets 
+twit_count_friends_2[themostactive_friend_degree2] #	Among friends of wustl friends, the id of the most active friend is ... id
 
 
