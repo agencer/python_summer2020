@@ -68,7 +68,12 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 import array
+import random
 from random import shuffle
+import time
+import datetime
+
+
 
 
 
@@ -77,10 +82,13 @@ from random import shuffle
 ##
 ##	Let's create our sequence and then randomize it: 
 
-my_numbers = list(range(1,30,2))
-random.shuffle(my_numbers)
-my_numbers
+def my_randoms_sequence_generator(n):
+	num_list = list(range(1,n+1))
+	random.shuffle(num_list)
+	return num_list
 
+my_numbers = my_randoms_sequence_generator(10)
+my_numbers
 
 
 
@@ -121,7 +129,7 @@ def bubble_sort(numbers): # Not the most efficient
 ##
 ##	Second Sorting Algorithm:
 
-def selection_sort(numbers):
+def selection_sort(numbers):		##	Linear
     # Answer object 
     numbers = numbers.copy()  # to not modify the original input
     answer = []
@@ -182,7 +190,6 @@ my_numbers
 bubble_sort(my_numbers)
 selection_sort(my_numbers)
 merge_sort(my_numbers)
-
 merge_sort(my_numbers) == selection_sort(my_numbers) == bubble_sort(my_numbers) # It's True!
 
 
@@ -191,5 +198,57 @@ merge_sort(my_numbers) == selection_sort(my_numbers) == bubble_sort(my_numbers) 
 ##
 ##
 ##
-##	Let's See the Resulst from Various Sorting Algorithms:
+##	Let's Create Simulation Function:
 
+def my_simulation(size_n, list_function):
+	encyclopedia_dict = {}	#	Here I create an overarching dictinary 
+	for j in list_function:		#	Here the simulation iterates over each function.
+		temprorary_dict = {}	#	Here I create a temprorary dictinary 
+		for i in range(10, size_n+1):		#	Now the simulation iterates for n times.
+			numlist = my_randoms_sequence_generator(i)
+			t0 = datetime.datetime.now() #	Start time
+			j(numlist) 	#	Using numlist as my argument with respective functions 
+			t1 = datetime.datetime.now()	#	End time
+			delta = t1-t0
+			temprorary_dict[str(i)] =  (delta.total_seconds() * 1000)
+			if i % 100 == 0:	#	To see my simulation works:
+				print("{}th iteration of function {} is compleated.".format(i, j))
+		encyclopedia_dict["_".join({"dict", j.__name__})] = temprorary_dict
+	# Here I inserted each indivdual dictinary to the overaching one:
+	return encyclopedia_dict
+
+final_results = my_simulation(5000, [selection_sort, bubble_sort, merge_sort])
+ 
+
+
+
+
+
+
+##
+##
+##
+##	Let's Create The Graph:
+
+
+list_n = list(final_results["selection_sort_dict"].keys())
+list_selection_sort = list(final_results["selection_sort_dict"].values())
+list_merge_sort = list(final_results["merge_sort_dict"].values())
+list_bubble_sort = list(final_results["bubble_sort_dict"].values())
+max(list_merge_sort)
+max(list_selection_sort)
+max(list_bubble_sort)
+
+plt.plot(list_n, list_merge_sort, 'r-', label = "Merge Sort")
+plt.plot(list_n, list_selection_sort, 'b-', label = "Selection Sort")
+plt.plot(list_n, list_bubble_sort, 'g-', label = "Bubble Sort")
+plt.xlim(10, 5000, 250)
+plt.ylim(1, 1000)
+plt.xlabel('N')
+plt.ylabel('Milliseconds to Process (log)')
+plt.yscale("log")
+plt.legend()
+plt.show()
+plt.savefig('plot.pdf')
+
+plt.close()
