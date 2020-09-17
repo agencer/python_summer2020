@@ -171,6 +171,18 @@ class LinkedList:
         self.length -= 1
 
     ##  reverse(self): Reverses the order of the linked list
+    ##  This function is the most efficient one.
+    ##  Total of n moves.
+    def reverse(self):
+        lastest_node = self.head
+        prev_node = None
+        next_node = None
+        while lastest_node:
+            next_node = lastest_node.next
+            lastest_node.next = prev_node
+            prev_node = lastest_node
+            lastest_node = next_node
+        self.head = prev_node
 
     ##   __str(self)__: Displays the list in some reasonable way   
     def __str__(self):          #   Displays both head node and whole string of node values.
@@ -237,3 +249,13 @@ my_linkedlist.length                            ##  Six elements, yes!
 my_linkedlist.removeNodesByValue(76)            ##  Let's remove value 76.
 my_linkedlist.removeNodesByValue(78)            ##  Let's remove value 78.
 print(my_linkedlist)                            ##  Yes, yes, yes
+
+
+##
+##
+##  
+##  let's check the reverse function:
+my_linkedlist.reverse()                         ##  Let's reverse the list.
+
+print(my_linkedlist)                            ##  Yes, yes, yes
+my_linkedlist.length 
