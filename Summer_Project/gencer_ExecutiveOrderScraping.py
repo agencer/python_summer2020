@@ -26,12 +26,12 @@ import re
 os.chdir('C:/Users/alper/OneDrive/Belgeler/GitHub/python_summer2020/Summer_Project/')
 
 
-def executiveorder_Monster(from_page = 0, to_page):
+def executiveorder_Monster(to_page, from_page = 0):
 	with io.open('gencer_exeorder.csv', 'w', encoding="utf-8") as f:	# I used "io.open" bc unicide couldn't  
 		w = csv.DictWriter(f, fieldnames = ("OrderTitle", "OrderURL", "OrderNo", "OrderPublishedDate", "OrderText", "OrderText2"))
 		w.writeheader()
 		# 	Open the main website
-		for k in range(from_page,page_number):
+		for k in range(from_page,to_page):
 			web_address = 'https://www.presidency.ucsb.edu/documents/app-categories/written-presidential-orders/presidential/executive-orders?items_per_page=25&page=' + str(to_page)
 			web_page = urllib.request.urlopen(web_address)
 			# 	Parse it
