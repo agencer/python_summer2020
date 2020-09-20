@@ -32,7 +32,7 @@ def executiveorder_Monster(to_page, from_page = 0):
 		w.writeheader()
 		# 	Open the main website
 		for k in range(from_page,to_page):
-			web_address = 'https://www.presidency.ucsb.edu/documents/app-categories/written-presidential-orders/presidential/executive-orders?items_per_page=25&page=' + str(to_page)
+			web_address = 'https://www.presidency.ucsb.edu/documents/app-categories/written-presidential-orders/presidential/executive-orders?items_per_page=25&page=' + str(k)
 			web_page = urllib.request.urlopen(web_address)
 			# 	Parse it
 			soup = BeautifulSoup(web_page.read())
@@ -69,7 +69,7 @@ def executiveorder_Monster(to_page, from_page = 0):
 					order_dictionary["OrderText"] = real_text
 				else:
 					order_dictionary["OrderText"] = real_text
-					order_dictionary["OrderText2"] = ""
+					order_dictionary["OrderText2"] = "."
 				w.writerow(order_dictionary)
 				print("Presidential Order No", order_dictionary["OrderNo"], " is added to the CSV file.")
 
