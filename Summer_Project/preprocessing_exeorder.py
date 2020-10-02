@@ -102,16 +102,3 @@ for k in order_dates2:
 
 ##	Let's save these changes:
 data_TrumpTweets.to_csv(r'C:/Users/alper/OneDrive/Belgeler/GitHub/python_summer2020/Summer_Project/gencer_TrumpTweets_2.csv')
-
-
-##	
-##
-##
-##	It worked. Now start from the here:
-data_ExecOrders = pd.read_csv("gencer_exeorder.csv",  engine='python') 
-data_ExecOrders.head()
-data_ExecOrders 
-data_TrumpTweets = pd.read_csv("gencer_TrumpTweets_2.csv", sep = ",", engine='python')
-data_TrumpTweets.head()
-for col in data_TrumpTweets.columns:
-	print(col)								##	Looks great!
