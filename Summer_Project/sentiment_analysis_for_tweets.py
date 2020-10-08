@@ -245,17 +245,23 @@ def predict_tweet(tweet, freqs, theta):
 ##	Let's try with Trump tweets:
 
 len(data_TrumpTweets["text"])
+predict_tweet(data_TrumpTweets["text"][20010], freqs, theta) 	# Cool!
+
+
 sentiment = []
 sentiment_bin = []
 
 for tweet in data_TrumpTweets["text"]:
-	sentiment.append(predict_tweet(tweet, freqs, theta))
-	sentiment_bin.append(predict_tweet(tweet, freqs, theta)>=0.5)
+	score = predict_tweet(tweet, freqs, theta)
+	sentiment.append(score)
+	sentiment_bin.append(score>=0.5)
+
 data_TrumpTweets["sentiment"] = sentiment
 data_TrumpTweets["sentiment_bin"] = sentiment_bin
 
-data_TrumpTweets.head()
 
 ##
 ##
 ##	Let's save this:
+
+data_TrumpTweets.to_csv(r'C:/Users/alper/OneDrive/Belgeler/GitHub/python_summer2020/Summer_Project/gencer_TrumpTweets_3.csv')

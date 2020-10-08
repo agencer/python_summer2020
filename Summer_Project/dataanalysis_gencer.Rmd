@@ -1,0 +1,208 @@
+---
+title: "Data Analysis"
+subtitle: "Summer Project"
+date: "October 2, 2020"
+author: "Gencer, Alper Sukru"
+output: pdf_document
+header-includes:
+  - \usepackage{color}
+  - \usepackage{float}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, fig.pos = 'H')
+```
+
+```{r loading packages, include=FALSE}
+stopifnot(require("knitr"))
+stopifnot(require("tidyverse"))
+stopifnot(require("miscTools"))
+stopifnot(require("gridExtra"))
+stopifnot(require("corpcor"))
+stopifnot(require("stargazer"))
+stopifnot(require("vcov"))
+stopifnot(require("faraway"))
+stopifnot(require("lme4"))
+stopifnot(require("latex2exp"))
+stopifnot(require("jtools"))
+```
+
+\bigskip
+
+# Data Analysis
+
+Here, I run the analysis:
+
+There are two questions that I try to answer:
+\begin{enumerate}
+  \item If the president's tweets show statistically different sentiment score before/after the issue date of executive order.
+  \item If the reaction (likes/mentions) that president's tweets receives before/after the issue date of executive order are statistically different than the montly average. 
+\end{enumerate}
+
+```{r Q1 - getting ready, include=TRUE, warning = FALSE, message = FALSE}
+rm(list = ls())
+gencer_TrumpTweets_3 <- read_csv("C:/Users/alper/OneDrive/Belgeler/GitHub/python_summer2020/Summer_Project/gencer_TrumpTweets_3.csv")
+
+####  There are some problems regarding python/R inconsistency. Let me correct them:
+library(tidyverse)
+gencer_TrumpTweets_3 <- gencer_TrumpTweets_3 %>%
+  mutate(sentiment_bin = ifelse(
+    sentiment_bin == "[[ True]]", 1, 0)
+)
+gencer_TrumpTweets_3[,ncol(gencer_TrumpTweets_3)-0] # Cool!
+####  Let's correct the sentiment format:
+gencer_TrumpTweets_3 <- gencer_TrumpTweets_3 %>%
+  mutate(sentiment = gsub("\\[|\\]", "", sentiment))
+gencer_TrumpTweets_3[,ncol(gencer_TrumpTweets_3)-1] # Cool!
+gencer_TrumpTweets_3$sentiment <- as.numeric((gencer_TrumpTweets_3$sentiment))
+```
+
+\bigskip
+
+Now let's find monthly like and retweet averages:
+
+\bigskip
+
+```{r Q2 - getting ready, include=TRUE, warning = FALSE, message = FALSE}
+# Let's first correct the date format:
+library(lubridate)
+gencer_TrumpTweets_3$created_date2 <- as.Date((gencer_TrumpTweets_3$created_date), tryFormats = c("%m/%d/%Y"),)
+gencer_TrumpTweets_3 <- gencer_TrumpTweets_3 %>%
+  mutate(month = month(created_date2), year = year(created_date2))
+gencer_TrumpTweets_3$monthyear <- paste(gencer_TrumpTweets_3$year, gencer_TrumpTweets_3$month, sep = "-")
+
+
+gencer_TrumpTweets_3 <- gencer_TrumpTweets_3 %>%
+  group_by(month, year) %>%
+  # Monthly like and retweet averages:
+  mutate(favorite_monthavrg = round(mean(favorite_count))) %>%
+  mutate(retweet_monthavrg = round(mean(retweet_count))) %>%
+  # Deviation from the Monthly like and retweet averages:
+  mutate(diff_favorite = favorite_count - favorite_monthavrg) %>%
+  mutate(diff_retweet = retweet_count - retweet_monthavrg)
+
+```
+
+And lastly, let's find monthly sentiment averages:
+
+
+```{r Q3 - getting ready, include=TRUE, warning = FALSE, message = FALSE}
+gencer_TrumpTweets_3 <- gencer_TrumpTweets_3 %>%
+  group_by(month, year) %>%
+  # Monthly like and retweet averages:
+  mutate(sentiment_monthavrg = (mean(sentiment))) %>%
+  mutate(sentiment_bin_monthavrg = (mean(sentiment_bin))) %>%
+  # Deviation from the Monthly like and retweet averages:
+  mutate(diff_sentiment = sentiment - sentiment_monthavrg) %>%
+  mutate(diff_sentiment_bin = sentiment_bin - sentiment_bin_monthavrg)
+```
+
+\bigskip
+
+## Hypothesis 1:
+
+Let's check our first hypothesis that if the president's tweets show statistically different sentiment score close to the issue date of executive order:
+
+```{r Q4a, include=TRUE, warning = FALSE, message = FALSE, results = 'asis', echo = FALSE}
+library(stargazer)
+library(jtools)
+library(scales)
+
+
+gencer_TrumpTweets_3
+
+```
+
+
+
+
+```{r Q5, include=TRUE, warning = FALSE, message = FALSE, results = 'asis', echo = FALSE, fig.cap = "DV = Sentiment", fig.show="hold", out.width="50%"}
+library(stargazer)
+library(jtools)
+
+model_senti.1 <- lm(sentiment ~ int_1day , data = gencer_TrumpTweets_3)
+model_senti.2 <- lm(sentiment ~ int_3day , data = gencer_TrumpTweets_3)
+model_senti.3 <- lm(sentiment ~ int_5day , data = gencer_TrumpTweets_3)
+model_senti.4 <- lm(sentiment ~ int_7day , data = gencer_TrumpTweets_3)
+model_senti.5 <- lm(sentiment ~ int_11day , data = gencer_TrumpTweets_3)
+model_senti.6 <- lm(sentiment ~ int_15day , data = gencer_TrumpTweets_3)
+
+# stargazer(model_senti.1, model_senti.2, model_senti.3, model_senti.4, model_senti.5, model_senti.6, header=FALSE, type='latex')
+
+plot_summs(model_senti.1, model_senti.2, model_senti.3, model_senti.4, model_senti.5, model_senti.6,
+           scale = TRUE, model.names = c("1 Day Model", "3 Day Model", "5 Day Model", "7 Day Model", "11 Day Model", "15 Day Model"))
+```
+
+
+```{r Q6, include=TRUE, warning = FALSE, message = FALSE, results = 'asis', echo = FALSE, fig.cap = "DV = Number of Likes", fig.show="hold", out.width="50%"}
+library(stargazer)
+
+model_likes.1 <- lm(favorite_count ~ int_1day , data = gencer_TrumpTweets_3)
+model_likes.2 <- lm(favorite_count ~ int_3day , data = gencer_TrumpTweets_3)
+model_likes.3 <- lm(favorite_count ~ int_5day , data = gencer_TrumpTweets_3)
+model_likes.4 <- lm(favorite_count ~ int_7day , data = gencer_TrumpTweets_3)
+model_likes.5 <- lm(favorite_count ~ int_11day , data = gencer_TrumpTweets_3)
+model_likes.6 <- lm(favorite_count ~ int_15day , data = gencer_TrumpTweets_3)
+
+# stargazer(model_likes.2, model_likes.3, model_likes.4, model_likes.5, model_likes.6, header=FALSE, type='latex')
+
+plot_summs(model_likes.2, model_likes.3, model_likes.4, model_likes.5, model_likes.6, 
+           scale = TRUE, model.names = c("3 Day Model", "5 Day Model", "7 Day Model", "11 Day Model", "15 Day Model"))
+library(stargazer)
+
+gencer_TrumpTweets_3 <- gencer_TrumpTweets_3 %>%
+  mutate(favorite_count = log(favorite_count+ 0.001)) 
+
+model_likes.1b <- lm(favorite_count ~ int_1day , data = gencer_TrumpTweets_3)
+model_likes.2b <- lm(favorite_count ~ int_3day , data = gencer_TrumpTweets_3)
+model_likes.3b <- lm(favorite_count ~ int_5day , data = gencer_TrumpTweets_3)
+model_likes.4b <- lm(favorite_count ~ int_7day , data = gencer_TrumpTweets_3)
+model_likes.5b <- lm(favorite_count ~ int_11day , data = gencer_TrumpTweets_3)
+model_likes.6b <- lm(favorite_count ~ int_15day , data = gencer_TrumpTweets_3)
+
+# stargazer(model_likes.2b, model_likes.3b, model_likes.4b, model_likes.5b, model_likes.6b, header=FALSE, type='latex')
+
+plot_summs(model_likes.2b, model_likes.3b, model_likes.4b, model_likes.5b, model_likes.6b, 
+           scale = TRUE, model.names = c("3 Day Model", "5 Day Model", "7 Day Model", "11 Day Model", "15 Day Model"))
+```
+
+
+
+
+
+
+```{r Q7, include=TRUE, warning = FALSE, message = FALSE, results = 'asis', echo = FALSE, fig.cap = "DV = Number of Retweets", fig.show="hold", out.width="50%"}
+library(stargazer)
+
+model_retweet.1 <- lm(retweet_count ~ int_1day , data = gencer_TrumpTweets_3)
+model_retweet.2 <- lm(retweet_count ~ int_3day , data = gencer_TrumpTweets_3)
+model_retweet.3 <- lm(retweet_count ~ int_5day , data = gencer_TrumpTweets_3)
+model_retweet.4 <- lm(retweet_count ~ int_7day , data = gencer_TrumpTweets_3)
+model_retweet.5 <- lm(retweet_count ~ int_11day , data = gencer_TrumpTweets_3)
+model_retweet.6 <- lm(retweet_count ~ int_15day , data = gencer_TrumpTweets_3)
+
+#stargazer(model_retweet.2, model_retweet.3, model_retweet.4, model_retweet.5, model_retweet.6, header=FALSE, type='latex')
+
+plot_summs(model_retweet.2, model_retweet.3, model_retweet.4, model_retweet.5, model_retweet.6, 
+           scale = TRUE, model.names = c("3 Day Model", "5 Day Model", "7 Day Model", "11 Day Model", "15 Day Model"))
+
+library(stargazer)
+gencer_TrumpTweets_3 <- gencer_TrumpTweets_3 %>%
+  mutate(retweet_count = log(retweet_count+ 0.001)) 
+
+
+model_retweet.1b <- lm(retweet_count ~ int_1day , data = gencer_TrumpTweets_3)
+model_retweet.2b <- lm(retweet_count ~ int_3day , data = gencer_TrumpTweets_3)
+model_retweet.3b <- lm(retweet_count ~ int_5day , data = gencer_TrumpTweets_3)
+model_retweet.4b <- lm(retweet_count ~ int_7day , data = gencer_TrumpTweets_3)
+model_retweet.5b <- lm(retweet_count ~ int_11day , data = gencer_TrumpTweets_3)
+model_retweet.6b <- lm(retweet_count ~ int_15day , data = gencer_TrumpTweets_3)
+
+#stargazer(model_retweet.2, model_retweet.3, model_retweet.4, model_retweet.5, model_retweet.6, header=FALSE, type='latex')
+
+plot_summs(model_retweet.2b, model_retweet.3b, model_retweet.4b, model_retweet.5b, model_retweet.6b, 
+           scale = TRUE, model.names = c("3 Day Model", "5 Day Model", "7 Day Model", "11 Day Model", "15 Day Model"))
+
+
+```
+
